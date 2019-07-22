@@ -1,0 +1,122 @@
+{
+  "version": 8,
+  "sources": {
+    "osm-tiles": {
+      "type": "raster",
+      "tiles": [
+            "http://c.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ],
+      "tileSize": 256
+    },
+    "A_JMDJSS_JMD_PG":{
+          "type":"vector",
+          "scheme":"tms",
+          "tiles":["http://localhost:8080/geoserver/gwc/service/tms/1.0.0/fmap%3AA_JMDJSS_JMD_PG@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"]
+    },
+    "A_JT_CSDL_PL": {
+            "type":"vector",
+            "scheme":"tms",
+            "tiles":["http://localhost:8080/geoserver/gwc/service/tms/1.0.0/fmap%3AA_JT_CSDL_PL@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"]
+    },
+    "A_JT_CSTL_PL": {
+            "type":"vector",
+            "scheme":"tms",
+            "tiles":["http://localhost:8080/geoserver/gwc/service/tms/1.0.0/fmap%3AA_JT_CSTL_PL@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"]
+    },
+    "A_JJYZQ_QTQY_PG": {
+            "type":"vector",
+            "scheme":"tms",
+            "tiles":["http://localhost:8080/geoserver/gwc/service/tms/1.0.0/fmap%3AA_JJYZQ_QTQY_PG@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"]
+    },
+    "A_ZBYTZ_CSLD_PG": {
+            "type":"vector",
+            "scheme":"tms",
+            "tiles":["http://localhost:8080/geoserver/gwc/service/tms/1.0.0/fmap%3AA_ZBYTZ_CSLD_PG@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf"]
+    }
+  },
+  "layers": [
+    {
+        "id": "simple-tiles",
+        "type": "raster",
+        "source": "osm-tiles",
+        "minzoom": 0,
+        "maxzoom": 22
+    },
+    {
+      "id": "3d-buildings",
+      "source": "A_JMDJSS_JMD_PG", 
+      "source-layer":"A_JMDJSS_JMD_PG",
+      "type": "fill-extrusion",
+      "paint": {
+          "fill-extrusion-color": [
+              "interpolate",
+              ["linear"],
+              ["get", "LCS"],
+              2, "#483D8B",
+              6, "rgb(255,255,191)",
+              8, "rgb(253,174,97)",
+              12, "#CD4F39"
+          ],
+          "fill-extrusion-height":[
+              "to-number",
+              ["get", "LCS"]
+          ],
+          "fill-extrusion-base": 0,
+          "fill-extrusion-pattern":"texture",
+          "fill-extrusion-opacity": 0.8
+      }
+    },
+    {               
+        "id": "A_JT_CSDL_PL",             
+        "source": "A_JT_CSDL_PL",          
+        "source-layer":"A_JT_CSDL_PL",
+        "type": "line",            
+        "layout": {},
+        "paint": {
+            "line-color": "#54FF9F",  
+            "line-width": 7,        
+            "line-opacity": 0.5
+
+        }
+    },
+    {               
+        "id": "A_JT_CSTL_PL",             
+        "source": "A_JT_CSTL_PL",          
+        "source-layer":"A_JT_CSTL_PL",
+        "type": "line",            
+        "layout": {},
+        "paint": {
+            "line-color": "#0A0A0A",  
+            "line-width": 10,        
+            "line-opacity": 0.5,
+            "line-dasharray": [2, 1]
+
+        }
+    },
+    {               
+        "id": "A_JJYZQ_QTQY_PG_outline",             
+        "source": "A_JJYZQ_QTQY_PG",          
+        "source-layer":"A_JJYZQ_QTQY_PG",
+        "type": "line",            
+        "layout": {},
+        "paint": {
+            "line-color": "#1874CD",  
+            "line-width": 3,        
+            "line-opacity": 0.5
+
+        }
+    },
+    {               
+        "id": "A_ZBYTZ_CSLD_PG",             
+        "source": "A_ZBYTZ_CSLD_PG",          
+        "source-layer":"A_ZBYTZ_CSLD_PG",
+        "type": "fill",            
+        "layout": {},
+        "paint": {
+            "fill-color": "#66CD00",        
+            "fill-opacity": 0.8
+
+        }
+    }
+  ]
+}

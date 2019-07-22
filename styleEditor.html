@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+        <title>Display a map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script type="text/javascript" src="jquery-3.4.1.min.js"></script> 
+    <script type="text/javascript" src="jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="evol.colorpicker.min.js"></script>
+    <link rel='stylesheet' href='jquery-ui.min.css'/>
+    <link rel='stylesheet' href='evol.colorpicker.min.css'/> 
+    <script src='mapbox-gl-dev.js'></script>
+    <link href='mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; z-index:10; top:0; bottom:0; width:100%; }
+        #list { position:absolute; z-index:20; width:150px; height: 100%; background:#05112de0;}
+        #editor { position:absolute; z-index:20; top:200px; left:155px; width:150px; height: 200px; background:#05112de0; display: none;}
+        span {margin-left: 5px; color:white;}
+        .proInput { width: 90px; display: list-item; margin: 5px;}
+        #list input {margin-top: 150px; width: 100%; background: #05112de0; color: white; border-radius: 5px;}
+        .color {width: 50px;}
+        .confirm{ width: 60px; display: list-item; margin-top: 10px; margin-left:5px;}
+        .evo-colorind{ position: relative; top: -26px; left: 20px;}
+        .evo-pop{z-index: 10000; width: 254px; padding: 3px 3px 0;}
+        #texturePreview{position:absolute; z-index:20; top:200px; left:155px;width:200px; height: 200px;background:#05112de0;overflow-y:scroll;display: none;}
+        .imgItem{margin-left: 5px; cursor: pointer}
+    </style>
+</head>
+<body>
+<div id='list'>
+    <input type="button" name="csgl" value="城市公路"></input>
+    <input type="file" name="jztt" value="建筑贴图"  webkitdirectory directory multiple></input>
+</div>
+<div id='editor'>
+    <span>颜色</span>
+    <input id='color' class='proInput' type="text" name="color"></input>
+    <span>宽度</span>
+    <input class='proInput' type="text" name="width"></input>
+    <span>透明度</span>
+    <input class='proInput' type="text" name="opacity"></input>
+    <input class='confirm' type="button" name="" value="确定"></input>
+</div>
+<div id='texturePreview'>
+    
+</div>
+<div id='map'></div>
+<script>
+
+var styleJson;
+    initEvent(); 
+// mapboxgl.accessToken = 'pk.eyJ1IjoiYW95YXp5IiwiYSI6ImNqdWk1YzE1cjE3MHYzeXBwbm12ZzE3cTYifQ.0Xef9cpGMuX3jte1f5IBGw';
+var map = new mapboxgl.Map({
+        container: 'map', // container id
+        style:'fmap.json' ,
+        center: [113.27, 23.13],
+        zoom: 15
+    });
+ 
+map.on('load', function() {  
+
+});
+
+map.on('dbclick',function(e){
+    console.log(e);
+});
+
+function initEvent(){
+    $("input[name='csgl']").on('click',function(){
+        if($("#editor").is(":visible")){
+            $("#editor").slideUp();
+        }else{
+            $("#editor").slideDown();
+        }
+    });
+    $.getJSON("fmap.json", function (data){
+        styleJson = data;
+
+        $("#color").colorpicker({
+            color : '#ffffff'
+        });
+
+        $(".confirm").on("click",function(){
+            var paint = {
+                "line-color": $("input[name='color']").val(),  
+                "line-width": parseFloat($("input[name='width']").val()) || 0,        
+                "line-opacity": parseFloat($("input[name='opacity']").val()) || 0
+            }
+            updateStyle("A_JT_CSDL_PL",paint);
+        });
+
+    });
+
+    $("input[name='jztt']").change(function(obj){
+        if($("#texturePreview").is(":visible")){
+            $("#texturePreview").slideUp();
+        }else{
+            $("#editor").innerHtml = "";
+            $("#texturePreview").slideDown();
+        }
+        texturePreview(obj.target.files);
+    });
+}
+
+function updateStyle(id, paint){
+    $.each(styleJson.layers,function(i,obj){
+        if(obj.id == id){
+            styleJson.layers[i].paint = paint;
+            map.setStyle(styleJson);
+        }
+    });
+}
+
+function texturePreview(selectFiles){
+    for(var file of selectFiles){
+        if(file.webkitRelativePath.indexOf(".jpg")>-1
+            ||file.webkitRelativePath.indexOf(".JPG")>-1
+            ||file.webkitRelativePath.indexOf(".png")>-1
+            ||file.webkitRelativePath.indexOf(".PNG")>-1){
+            console.log(file.webkitRelativePath);
+
+            /// read file content.
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+
+            reader.onloadend = function(){
+                /// deal data.
+                var img = new Image();
+                /// after loader, result storage the file content result.
+                // img.onload = function(){
+                    $('#texturePreview').append('<img class="imgItem" src="'+this.result+'" width="50" height="50" onclick="renderTexture(this.src)"/>');
+                // }
+                // img.src = this.result;  
+            }
+        }
+    }
+}
+
+function renderTexture(imageData){
+    // map.addImage("texture", imageData);
+    map.loadImage(imageData, function (error, image) {
+        if (error) throw error;
+        if(map.hasImage("texture")){
+            map.removeImage("texture");
+            map.removeLayer("3d-buildings");
+            map.setStyle(styleJson);
+        }
+        map.addImage("texture", image);
+        map.zoomTo(16);
+    });
+
+}
+
+</script>
+
+</body>
+</html>
